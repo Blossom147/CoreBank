@@ -34,7 +34,7 @@ public class AppUser {
     private String fullName;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "appUser")
-    private Set<Account> listEmployee = new HashSet<>();
+    private Set<Account> listAccount = new HashSet<>();
 
     public AppUser(){}
 

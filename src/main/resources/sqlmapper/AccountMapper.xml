@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.core_bank.repository.AccountRepo">
+
+    <!--    <resultMap id="BaseResultMap" type="com.ach.web.model.response.UserResponse">-->
+    <!--        <id column="ID" property="id" jdbcType="BIGINT"/>-->
+    <!--        <result column="USERNAME" property="username" jdbcType="VARCHAR"/>-->
+    <!--        <result column="STATUS" property="status" jdbcType="VARCHAR"/>-->
+    <!--        <result column="IS_RESET_PASSWORD" property="resetPassword" jdbcType="BOOLEAN"/>-->
+    <!--        <result column="REG_DT" property="regDt" jdbcType="DATE"/>-->
+    <!--        <result column="EXP_DT" property="expDt" jdbcType="DATE"/>-->
+    <!--        <result column="ROLE_ID" property="roleId" jdbcType="INTEGER"/>-->
+    <!--        <result column="ROLE_NAME" property="roleName" jdbcType="VARCHAR"/>-->
+    <!--    </resultMap>-->
+
+    <select id='findByJoinAccount' resultType="com.example.core_bank.dto.AccountReponse">
+        select a.id, u.user_name ,a.amount  from app_account a inner join app_user u on a.user_id  = u.id;
+    </select>
+
+    <select id='findByJoinAccountLimit' resultType="com.example.core_bank.dto.UserAccountVO" parameterType="com.example.core_bank.dto.PageableRequest" >
+
+        select a.ID, a.AMOUNT, u.USER_NAME, a.USER_ID from APP_USER u
+                                                               Inner Join APP_ACCOUNT a on u.ID = a.USER_ID
+        OFFSET #{offset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+    </select>
+
+    <select id='countByJoinAccount'  resultType="Long">
+
+        select count(*) from app_user u inner join app_account a on u.ID = a.ID
+
+    </select>
+    <sql id="searchByAccountSearch">
+        where 1 = 1
+        <if test="userName != null">
+            AND userName like concat('%' , #{userName})
+        </if>
+
+        <if test="userId != null">
+            AND userId = #{userId}
+        </if>
+    </sql>
+    <select id='findAccountByName' resultType="com.example.core_bank.dto.UserAccountVO" parameterType="com.example.core_bank.dto.AccountSearch">
+        select a.ID, a.AMOUNT, u.USER_NAME, a.USER_ID from APP_USER u
+                                                               Inner Join APP_ACCOUNT a on u.ID = a.USER_ID
+        <include refid="searchByAccountSearch"></include>
+
+        OFFSET #{offset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+    </select>
+</mapper>

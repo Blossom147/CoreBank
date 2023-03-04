@@ -1,8 +1,8 @@
 package com.example.core_bank.controller;
 
-import com.example.core_bank.dto.APIReponse;
+import com.example.core_bank.dto.AccountReponse;
+import com.example.core_bank.dto.UserAccountVO;
 import com.example.core_bank.entity.AppUser;
-import com.example.core_bank.repository.IAppUserRepository;
 import com.example.core_bank.service.IUserService;
 import com.example.core_bank.utils.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,37 +14,48 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Pageable;
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-@RestController
+@Controller
 public class UserController {
 
     @Autowired
     private IUserService userService;
 
-    @Autowired
-    private IAppUserRepository appUserRepository;
+
 
     @GetMapping(value = "/user")
-    private APIReponse<List<AppUser>> getUsers(){
-        List<AppUser> allUser = userService.getAllUser();
-        return new APIReponse<>(allUser.size(),allUser);
+    public String accountRes(Model model){
+        List<AccountReponse> userAccountRespons = userService.findByJoinAccount();
+        model.addAttribute("listAccount", userAccountRespons);
+        return "account.html";
     }
 
-    @GetMapping(value = "/user/{field}")
-    private APIReponse<List<AppUser>> getUserWithSort(@PathVariable String field){
-        List<AppUser> allUser = userService.findUserWithSorting(field);
-        return new APIReponse<>(allUser.size(),allUser);
+    @RequestMapping(value = "/listUsers", method = RequestMethod.GET)
+    public String listUsers(
+        Model model,
+        @RequestParam("page") Optional<Integer> page,
+        @RequestParam("size") Optional<Integer> size) {
+        int currentPage = page.orElse(1);
+        int pageSize = size.orElse(20);
+        Page<AppUser> userPage = userService.findPaginated(PageRequest.of(currentPage - 1, pageSize));
+
+        model.addAttribute("userPage", userPage);
+
+        int totalPages = userPage.getTotalPages();
+        if (totalPages > 0) {
+        List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
+                .boxed()
+                .collect(Collectors.toList());
+        model.addAttribute("pageNumbers", pageNumbers);
     }
 
-    @GetMapping(value = "/user/pagination/{offset}/{pageSize}")
-    private APIReponse<Page<AppUser>> getUserWithPage(@PathVariable int offset, @PathVariable int pageSize){
-        Page<AppUser> allUser = userService.findUserWithPagination(offset,pageSize);
-        return new APIReponse<>(allUser.getSize(),allUser);
-    }
-
+    return "user.html";
+}
     @RequestMapping(value = { "/", "/welcome" }, method = RequestMethod.GET)
     public String welcomePage(Model model) {
         model.addAttribute("title", "Welcome");

@@ -1,10 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+    <title>List Users</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <body>
+<div class="container">
 
+    <h3>List Employees</h3>
+
+    <hr/>
+    <table id="listUser" class="table table-bordered table-striped">
+    <tr>
+        <th>No.</th>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Email</th>
+    </tr>
+    <th:block th:each="user, iterStat : ${userPage}">
+        <tr>
+            <td><p th:text="${iterStat.count}">No.</p></td>
+            <td><p th:text="${user.userId}"></p></td>
+            <td><p th:text="${user.userName}"></p></td>
+            <td><p th:text="${user.age}"></p></td>
+            <td><p th:text="${user.email}"></p></td>
+        </tr>
+    </th:block>
+    </table>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center pagination-sm">
+            <li class="page-item ">
+                <a class="page-link" th:href="@{/listUsers(size=${userPage.size}, page=${userPage.number})}" tabindex="-1">Previous</a>
+            </li>
+            <li class="page-link"
+                    th:if="${userPage.totalPages > 0}"
+                    th:each="pageNumber : ${pageNumbers}">
+                <a th:href="@{/listUsers(size=${userPage.size}, page=${pageNumber})}"
+                   th:text=${pageNumber}
+                   th:class="${pageNumber==userPage.number + 1} ? active"
+                   class="page-link">
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" th:href="@{/listUsers(size=${userPage.size}, page=${userPage.number + 2})}">Next</a>
+            </li>
+        </ul>
+    </nav>
+</div>
 </body>
+
 </html>
